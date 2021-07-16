@@ -1,11 +1,5 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URL;
-
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
        try(Leitor l = new Leitor("./src/Nome.txt");
            Leitor l2 = new Leitor("./src/Sobrenome.txt")
