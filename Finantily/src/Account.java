@@ -1,10 +1,10 @@
 public class Account {
 
     float value;
-    String type;
+    AccountTypes type;
     Person owner;
 
-    public Account(float value, String type, Person owner) {
+    public Account(float value, Person owner, AccountTypes type) {
         this.value = value;
         this.type = type;
         this.owner = owner;
@@ -18,11 +18,11 @@ public class Account {
         this.value = value;
     }
 
-    public String getType() {
+    public AccountTypes getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(AccountTypes type) {
         this.type = type;
     }
 

@@ -5,7 +5,6 @@ public class Person {
     String name;
     Income income;
     ArrayList<Expense> expenses;
-    ArrayList<Person> fammiliars;
 
     public Person(String name) {
         this.name = name;

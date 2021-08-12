@@ -1,3 +1,3 @@
 public enum ExpenseType {
-    Alimentation,Dress,Transport,House,Services
+    Alimentation,Transport,House,Services
 }
