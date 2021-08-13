@@ -1,5 +1,8 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Finantily {
@@ -30,25 +33,26 @@ public class Finantily {
                 addIncome(account);
                 break;
             case 4:
-                persons.stream().forEach(person -> System.out.println(person.toString()));
+                listAll(persons);
                 break;
             case 5:
                 Person p2 = getPerson();
                 addAccount(p2);
                 break;
             case 6:
-                listExpenses(in);
+                listAll(expenses);
                 break;
             case 7:
-                ym = getDate();
-                listExpenses(in, ym);
+                listByActualMonth(expenses);
                 break;
             case 8:
-                listIncomes(in);
+                listAll(incomes);
                 break;
             case 9:
-                ym = getDate();
-                listIncomes(in, ym);
+                listByActualMonth(incomes);
+                break;
+            case 10:
+                listAll(accounts);
                 break;
             default:
                 System.out.println("opção não encontrada");
@@ -101,6 +105,7 @@ public class Finantily {
         if (!accounts.isEmpty()) {
             System.out.println("2 - Adicionar uma despesa");
             System.out.println("3 - Adicionar uma renda");
+            System.out.println("10 - Listar contas");
         }
         if (!expenses.isEmpty()) {
             System.out.println("6 - Listar todas despesas do mes atual");
@@ -156,15 +161,18 @@ public class Finantily {
             default:
                 eType = ExpenseType.Services;
         }
-        Expense e1 = new Expense(value, description, eType, p1);
+
 
         try {
+            Expense e1 = new Expense(value, description, eType, p1);
             account.addExpense(e1);
+            expenses.add(e1);
         } catch (SaldoException e){
             System.out.println(e.getMessage());
         }
-
-        expenses.add(e1);
+        catch (Exception e){
+            System.out.println("erro ao criar a despesa");
+        }
     }
 
     public static void addIncome(Account ac) {
@@ -178,37 +186,28 @@ public class Finantily {
     }
 
     public static void listExpenses(Scanner in) {
-        YearMonth now = YearMonth.now();
         expenses.stream()
-                .filter(expense ->
-                     expense.date.getMonthValue() == now.getMonthValue() && expense.date.getYear() == now.getYear()
-                ).forEach(expense -> System.out.println(expense.toString()));
-
-//        expenses.stream()
-//                .map(Expense::getValue)
-//                .reduce(Float::sum)
-//                .ifPresent(sum -> System.out.println("Total: " + sum));
+                .map(Expense::getValue)
+                .reduce(Float::sum)
+                .ifPresent(sum -> System.out.println("Total: " + sum));
     }
 
-    public static void listExpenses(Scanner in, YearMonth ym) {
-        expenses.stream()
-                .filter(expense ->
-                            expense.getDate().getMonthValue() == ym.getMonthValue() && expense.getDate().getYear() == ym.getYear()
-
-                )
-                .forEach(expense -> System.out.println(expense.toString()));
+    private static void listAll(ArrayList<?> list){
+        if(list != null){
+            list.stream().forEach(item -> item.toString());
+        }
     }
 
-    public static void listIncomes(Scanner in) {
-        incomes.stream().forEach(System.out::println);
+    private static void listByActualMonth(ArrayList<?> list ) {
+        YearMonth ym = getDate();
+        list.stream()
+                .filter(item -> item.getClass().getName().equals("Income") || item.getClass().getName().equals("Expanse"))
+                .filter(item -> {
+                    Dated obj = (Dated) item;
+                    return obj.date.getMonthValue() == ym.getMonthValue() && obj.date.getYear() == ym.getYear();
+                }).forEach(item  -> System.out.println(item.toString()));
     }
 
-    public static void listIncomes(Scanner in, YearMonth ym) {
-        incomes.stream()
-                .filter(income ->
-                        income.date.getMonthValue() == ym.getMonthValue() && income.date.getYear() == ym.getYear()
-                ).forEach(income -> System.out.println(income.toString()));
-    }
 
     public static void addAccount(Person p1){
         System.out.println("qual o tipo de conta?");
@@ -238,5 +237,6 @@ public class Finantily {
         p1.addAccount(ac);
 
     }
+
 
 }

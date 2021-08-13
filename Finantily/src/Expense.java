@@ -1,7 +1,7 @@
 import java.time.Year;
 import java.time.YearMonth;
 
-public class Expense {
+public class Expense implements Dated{
     float value = 0f;
     YearMonth date;
     String description;

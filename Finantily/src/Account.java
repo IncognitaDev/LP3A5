@@ -62,8 +62,8 @@ public class Account {
                 "value=" + value +
                 ", type=" + type +
                 ", owner=" + owner.getName() +
-                ", incomes=" + incomes +
-                ", expenses=" + expenses +
+                ", incomes=" + incomes.size() +
+                ", expenses=" + expenses.size() +
                 '}';
     }
 }

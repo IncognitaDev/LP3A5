@@ -1,6 +1,6 @@
 import java.time.YearMonth;
 
-public class Income {
+public class Income implements Dated{
 
     float value;
     YearMonth date;
