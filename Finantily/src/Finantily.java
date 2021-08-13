@@ -179,10 +179,18 @@ public class Finantily {
         System.out.println("digite o valor");
         float value = in.nextFloat();
 
-        Income r1 =  new Income(value, ac.owner);
+        Thread t = new Thread(() -> {
+            Income r1 =  new Income(value, ac.owner);
+            incomes.add(r1);
+            ac.addIncome(r1);
+        });
 
-        incomes.add(r1);
-        ac.addIncome(r1);
+        try {
+            t.join();
+            t.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void listExpenses(Scanner in) {
@@ -232,10 +240,18 @@ public class Finantily {
         System.out.println("digite o valor atual");
         float value = in.nextFloat();
 
-        Account ac = new Account(value, p1, accountType);
-        accounts.add(ac);
-        p1.addAccount(ac);
+        Thread t = new Thread(() -> {
+            Account ac = new Account(value, p1, accountType);
+            accounts.add(ac);
+            p1.addAccount(ac);
+        });
 
+        try {
+            t.join();
+            t.start();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
