@@ -1,10 +1,9 @@
 import java.util.ArrayList;
 
 public class Person {
-
     String name;
     Income income;
-    ArrayList<Expense> expenses;
+    ArrayList<Account> accounts = new ArrayList<>();
 
     public Person(String name) {
         this.name = name;
@@ -31,12 +30,25 @@ public class Person {
         this.income = income;
     }
 
-    public ArrayList<Expense> getExpenses() {
-        return expenses;
+    public void addAccount(Account account) {
+        accounts.add(account);
     }
 
-    public void setExpenses(ArrayList<Expense> expenses) {
-        this.expenses = expenses;
+    public ArrayList<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void setAccounts(ArrayList<Account> accounts) {
+        this.accounts = accounts;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", income=" + income +
+                ", accounts= [" + accounts.stream().toString() +
+                "]}";
     }
 }
 

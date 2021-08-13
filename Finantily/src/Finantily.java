@@ -1,7 +1,6 @@
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.function.Function;
 
 public class Finantily {
     static ArrayList<Expense> expenses = new ArrayList<>();
@@ -26,13 +25,16 @@ public class Finantily {
                 addExpanse(in);
                 break;
             case 3:
-                addIncome(in, persons.get(0));
+                Person p1 = getPerson();
+                Account account = getAccount(p1);
+                addIncome(account);
                 break;
             case 4:
-                persons.stream().forEach(System.out::println);
+                persons.stream().forEach(person -> System.out.println(person.toString()));
                 break;
             case 5:
-                addAccount();
+                Person p2 = getPerson();
+                addAccount(p2);
                 break;
             case 6:
                 listExpenses(in);
@@ -56,13 +58,32 @@ public class Finantily {
         Finantily.main(new String[]{""});
     }
 
+    private static Person getPerson(){
+        System.out.println("selecione a pessoa");
+        persons.stream()
+                .forEach(person -> System.out.println(persons.indexOf(person)+ " - " + person.getName()));
+        int personId = in.nextInt();
+        return persons.get(personId);
+    }
+
+    private static Account getAccount(Person p1){
+        System.out.println("Selecione a conta");
+        p1
+                .getAccounts()
+                .stream()
+                .forEach(account -> System.out.println(accounts.indexOf(account)+ " - " + account.getType()));
+        int accountId = in.nextInt();
+
+       return accounts.get(accountId);
+    }
+
     private static YearMonth getDate() {
         System.out.println("Digite a data. ex: 08/2021");
         String value = in.next();
 
-        if(value.matches("[0-9]{2}/[0-9]{4}")) {
+        if (value.matches("[0-9]{2}/[0-9]{4}")) {
             String[] date = value.split("/");
-            return YearMonth.of(Integer.parseInt(date[1]),Integer.parseInt(date[0]));
+            return YearMonth.of(Integer.parseInt(date[1]), Integer.parseInt(date[0]));
         }
 
         System.out.println("Formato invalido");
@@ -73,21 +94,20 @@ public class Finantily {
         System.out.println("--------- Finantily ------------");
         System.out.println("O que deseja fazer? ");
         System.out.println("1 - Adicionar uma pessoa");
-        System.out.println("2 - Adicionar uma despesa");
-        System.out.println("3 - Adicionar uma renda");
-        System.out.println("4 - Adicoionar uma conta");
-
-        if(!persons.isEmpty()){
-            System.out.println("5 - Listar todas as pessoas");
+        if (!persons.isEmpty()) {
+            System.out.println("4 - Listar todas as pessoas");
+            System.out.println("5 - Adicionar uma conta");
         }
-
-        if(!expenses.isEmpty()){
-            System.out.println("6 - Listar todas despesas ativas");
+        if (!accounts.isEmpty()) {
+            System.out.println("2 - Adicionar uma despesa");
+            System.out.println("3 - Adicionar uma renda");
+        }
+        if (!expenses.isEmpty()) {
+            System.out.println("6 - Listar todas despesas do mes atual");
             System.out.println("7 - Listar despesas por Mes/Ano");
         }
-
-        if(!incomes.isEmpty()){
-            System.out.println("8 - Listar todas rendas ativas");
+        if (!incomes.isEmpty()) {
+            System.out.println("8 - Listar todas rendas do mes atual");
             System.out.println("9 - Listar rendas por Mes/Ano");
         }
 
@@ -101,17 +121,21 @@ public class Finantily {
         Person p1 = new Person(name);
         persons.add(p1);
 
-        System.out.println("Deseja addicionar uma renda para: " + p1.getName() + " (y/n)");
+        System.out.println("Deseja addicionar uma conta para: " + p1.getName() + " (y/n)");
         String opt = in.next();
 
-        if(opt.equals("Y") || opt.equals("y")) addIncome(in, p1);
+        if (opt.equals("Y") || opt.equals("y")) addAccount(p1);
     }
 
     public static void addExpanse(Scanner in) {
+        Person p1 = getPerson();
+        Account account = getAccount(p1);
+
         System.out.println("digite o valor da despesa");
         float value = in.nextFloat();
 
         System.out.println("digite a descrição da despesa");
+        in.nextLine();
         String description = in.nextLine();
 
         System.out.println("selecione o tipo da despesa");
@@ -120,10 +144,6 @@ public class Finantily {
         System.out.println("3 - Transporte ");
         System.out.println("4 - Alimentação ");
         int opt = in.nextInt();
-
-        System.out.println("é uma despesa recorente (y/n)");
-        String recurrenceAnswer = in.next();
-        boolean recurrence = recurrenceAnswer.equals("Y") || recurrenceAnswer.equals("y");
 
         ExpenseType eType;
         switch (opt) {
@@ -136,57 +156,61 @@ public class Finantily {
             default:
                 eType = ExpenseType.Services;
         }
-        Expense e1 = recurrence ? new FixedExpense(value, description, eType) : new Expense(value, description, eType);
+        Expense e1 = new Expense(value, description, eType, p1);
+
+        try {
+            account.addExpense(e1);
+        } catch (SaldoException e){
+            System.out.println(e.getMessage());
+        }
 
         expenses.add(e1);
     }
 
-    public static void addIncome(Scanner in, Person p) {
+    public static void addIncome(Account ac) {
         System.out.println("digite o valor");
         float value = in.nextFloat();
 
-        System.out.println("é uma renda fixa? (y/n)");
-        String recurrenceAnswer = in.next();
-
-        boolean recurrence = recurrenceAnswer.equals("Y") || recurrenceAnswer.equals("y");
-
-        Income r1 = recurrence ? new Income(value, p) : new FixedIncome(value, p);
+        Income r1 =  new Income(value, ac.owner);
 
         incomes.add(r1);
+        ac.addIncome(r1);
     }
 
     public static void listExpenses(Scanner in) {
+        YearMonth now = YearMonth.now();
         expenses.stream()
-                .filter(expense -> {
-                    YearMonth now = YearMonth.now();
-                    return expense.endDate.getMonthValue() >= now.getMonthValue() && expense.endDate.getYear() >= now.getYear();
-                }).forEach(System.out::println);
+                .filter(expense ->
+                     expense.date.getMonthValue() == now.getMonthValue() && expense.date.getYear() == now.getYear()
+                ).forEach(expense -> System.out.println(expense.toString()));
+
+//        expenses.stream()
+//                .map(Expense::getValue)
+//                .reduce(Float::sum)
+//                .ifPresent(sum -> System.out.println("Total: " + sum));
     }
 
     public static void listExpenses(Scanner in, YearMonth ym) {
         expenses.stream()
-                .filter(n -> "FixedExpanse".equals(n.getClass().getName()))
-                .filter(expense -> {
-                            FixedExpense e1 = (FixedExpense) expense;
-                            return e1.getInitialDate().getMonthValue() >= ym.getMonthValue() ||
-                                    e1.getEndDate().getMonthValue() <= ym.getMonthValue();
-                        }
+                .filter(expense ->
+                            expense.getDate().getMonthValue() == ym.getMonthValue() && expense.getDate().getYear() == ym.getYear()
+
                 )
-                .forEach(System.out::println);
+                .forEach(expense -> System.out.println(expense.toString()));
     }
 
-
-    public static void listIncomes(Scanner in){
+    public static void listIncomes(Scanner in) {
         incomes.stream().forEach(System.out::println);
     }
 
-    public static void listIncomes(Scanner in, YearMonth ym){
-        incomes.stream().filter(income ->
-                income.active
-        ).forEach(System.out::println);
+    public static void listIncomes(Scanner in, YearMonth ym) {
+        incomes.stream()
+                .filter(income ->
+                        income.date.getMonthValue() == ym.getMonthValue() && income.date.getYear() == ym.getYear()
+                ).forEach(income -> System.out.println(income.toString()));
     }
 
-    public static void addAccount() {
+    public static void addAccount(Person p1){
         System.out.println("qual o tipo de conta?");
         System.out.println("1 - Poupança");
         System.out.println("2 - Corrente");
@@ -194,7 +218,7 @@ public class Finantily {
         int opt = in.nextInt();
 
         AccountTypes accountType;
-        switch (opt){
+        switch (opt) {
             case 1:
                 accountType = AccountTypes.Poupança;
                 break;
@@ -209,10 +233,10 @@ public class Finantily {
         System.out.println("digite o valor atual");
         float value = in.nextFloat();
 
-        Account ac = new Account(value, persons.get(0) ,accountType);
+        Account ac = new Account(value, p1, accountType);
+        accounts.add(ac);
+        p1.addAccount(ac);
+
     }
 
-    public static void list(ArrayList list, Function<Object, Boolean> comparate){
-        list.stream().filter(comparate::apply).forEach(System.out::println);
-    }
 }

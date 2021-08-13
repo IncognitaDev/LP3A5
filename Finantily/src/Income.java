@@ -3,19 +3,13 @@ import java.time.YearMonth;
 public class Income {
 
     float value;
-    YearMonth reference;
+    YearMonth date;
     Person owner;
-    boolean active;
 
     public Income(float value, Person owner) {
         this.value = value;
         this.owner = owner;
-    }
-
-    public Income(float value, YearMonth reference, Person owner) {
-        this.value = value;
-        this.reference = reference;
-        this.owner = owner;
+        this.date = YearMonth.now();
     }
 
     public float getValue() {
@@ -27,11 +21,11 @@ public class Income {
     }
 
     public YearMonth getReference() {
-        return reference;
+        return date;
     }
 
     public void setReference(YearMonth reference) {
-        this.reference = reference;
+        this.date = reference;
     }
 
     public Person getOwner() {
@@ -42,11 +36,12 @@ public class Income {
         this.owner = owner;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    @Override
+    public String toString() {
+        return "Income{" +
+                "value=" + value +
+                ", date=" + date +
+                ", owner=" + owner.getName() +
+                '}';
     }
 }

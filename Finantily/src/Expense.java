@@ -1,18 +1,19 @@
-import java.time.LocalDate;
-import java.util.Date;
+import java.time.Year;
+import java.time.YearMonth;
 
 public class Expense {
     float value = 0f;
-    LocalDate endDate;
+    YearMonth date;
     String description;
     ExpenseType type;
     Person owner;
-    int instalmentsNumber;
 
-    public Expense(float value, String description, ExpenseType type) {
+    public Expense(float value, String description, ExpenseType type, Person p1) {
         this.value = value;
         this.description = description;
         this.type = type;
+        this.owner = p1;
+        this.date = YearMonth.now();
     }
 
     public float getValue() {
@@ -47,15 +48,22 @@ public class Expense {
         this.owner = owner;
     }
 
+    public YearMonth getDate() {
+        return date;
+    }
+
+    public void setDate(YearMonth date) {
+        this.date = date;
+    }
+
     @Override
     public String toString() {
         return "Expense{" +
                 "value=" + value +
-                ", endDate=" + endDate +
+                ", endDate=" + date +
                 ", description='" + description + '\'' +
                 ", type=" + type +
-                ", owner=" + owner +
-                ", instalmentsNumber=" + instalmentsNumber +
+                ", owner=" + owner.getName() +
                 '}';
     }
 }
